@@ -1,6 +1,6 @@
 /*! For license information please see client-bundle.js.LICENSE.txt */
 
-// Replay Keeping Widget
+// Replay Keeping Scripts
 let replayList = [];
 let homeUI = document.getElementById("homeUI");
 let replayPreview = document.createElement("div");
