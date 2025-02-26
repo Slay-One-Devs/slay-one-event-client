@@ -1,4 +1,64 @@
 /*! For license information please see client-bundle.js.LICENSE.txt */
+
+// Replay Keeping Widget
+let replayList = [];
+let homeUI = document.getElementById("homeUI");
+let replayPreview = document.createElement("div");
+replayPreview.style.position = "absolute";
+replayPreview.style.display = "block";
+replayPreview.style.bottom = "10px"
+replayPreview.style.right = "-16vw";
+replayPreview.style.width = "15vw";
+replayPreview.style.height = "20vh";
+replayPreview.style.overflowY = "scroll";
+replayPreview.style.background = "rgba(255, 255, 255, 0.3)";
+replayPreview.style.border = "1px solid black";
+homeUI.appendChild(replayPreview);
+
+function replayPreviewRender() {
+    replayPreview.innerHTML = "";
+    let rpnum = 0;
+    let refreshReplayPreviewButton = document.createElement("div");
+    refreshReplayPreviewButton.style.color = "yellow";
+    refreshReplayPreviewButton.innerText = "refresh";
+    refreshReplayPreviewButton.onclick = (event) => {
+        replayPreview.innerHTML = "";
+        replayList = [
+            [],
+        ];
+        let refreshReplayPreviewButton = document.createElement("div");
+        refreshReplayPreviewButton.style.color = "yellow";
+        refreshReplayPreviewButton.innerText = "refresh";
+        replayPreview.appendChild(refreshReplayPreviewButton);
+    }
+    replayPreview.appendChild(refreshReplayPreviewButton);
+    for (let i = 1; i < replayList.length; i++) {
+        let replayData = replayList[i];
+        if (replayData.length == 0) { continue; }
+        rpnum++;
+        let replaySaveButton = document.createElement("div");
+        replaySaveButton.style.cursor = "pointer";
+        replaySaveButton.style.textDecoration = "underline";
+        replaySaveButton.innerText = "replay " + rpnum.toString();
+
+        replaySaveButton.onclick = (event) => {
+            var jsonData = JSON.stringify(["replay-version=4"].concat(replayData));
+            var blob = new Blob([jsonData], {
+                type: "application/json"
+            });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = "replay-" + new Date().toISOString().split('T')[0] + ".json";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+        replayPreview.appendChild(replaySaveButton);
+    }
+}
+
 ( () => {
     var __webpack_modules__ = {
         6505: (__unused_webpack_module, exports, __webpack_require__) => {
@@ -1519,6 +1579,8 @@
               , Game = function() {
                 function Game(map) {
                     var _a;
+                    let newReplayFile = [];
+                    replayList.push(newReplayFile);
                     this.FIELD_SIZE = .06 * Math.sqrt(window.innerWidth * window.innerHeight),
                     this.FIELD_SIZE_BASE = .06 * Math.sqrt(window.innerWidth * window.innerHeight),
                     this.SCALE_FACTOR = .06 * Math.sqrt(window.innerWidth * window.innerHeight) / 16,
@@ -1530,7 +1592,7 @@
                     this.tickDiff = 0,
                     this.exactTickDiff = 0,
                     this.lastUpdate = 0,
-                    this.replayFile = [],
+                    this.replayFile = newReplayFile,
                     this.playingReplay = [],
                     this.playingReplayVersion = 0,
                     this.pl_active_abilities = [],
@@ -26551,6 +26613,7 @@
                     domAbilities.refreshView()
                 },
                 render: function() {
+                    replayPreviewRender();
                     window.lang = lang_1 ; // allow for the html to access lang class 
                     domMainContent.innerHTML && domMainContent.innerHTML.length > 0 && exports.homeScreen.collectSocialButtons(),
                     domMainContent.innerHTML = "";
